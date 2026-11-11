@@ -73,6 +73,62 @@ Phase 4 - Comparative Analysis
 
 Evaluation Metrics: Accuracy, Precision, Recall, F1-Score
 
+
+
+
+## Results
+
+Dataset after cleaning: 301 records (240 train / 61 test, seed 42).
+
+### Baseline (no privacy)
+
+| Model | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|
+| Linear Regression | 0.8197 | 0.8056 | 0.8788 | 0.8406 |
+| Logistic Regression | 0.8689 | 0.8788 | 0.8788 | 0.8788 |
+| Decision Tree | 0.7541 | 0.7812 | 0.7576 | 0.7692 |
+| Random Forest | 0.8033 | 0.8000 | 0.8485 | 0.8235 |
+
+### Differential privacy (accuracy)
+
+| Model | ε=0.1 | ε=0.5 | ε=1.0 | ε=5.0 | ε=10.0 |
+|---|---|---|---|---|---|
+| Logistic Regression | 0.5410 | 0.7869 | 0.8525 | 0.8361 | 0.8689 |
+| Decision Tree | 0.4590 | 0.7377 | 0.7541 | 0.7869 | 0.7049 |
+| Random Forest | 0.5410 | 0.8361 | 0.8197 | 0.8033 | 0.8197 |
+
+### K-anonymity
+
+| k | Records kept (of 240) | Suppressed |
+|---|---|---|
+| 2 | 130 | 45.8% |
+| 5 | 24 | 90.0% |
+| 10 | 0 | 100% (skipped) |
+
+| Model | k=2 Accuracy | k=5 Accuracy |
+|---|---|---|
+| Logistic Regression | 0.8197 | 0.8197 |
+| Decision Tree | 0.7049 | 0.5574 |
+| Random Forest | 0.8525 | 0.7705 |
+
+### Key findings
+
+1. **Logistic Regression is the most privacy-resilient model.** At ε=1.0 it scored 85.25%, only 1.64 points below its baseline.
+2. **ε between 1.0 and 5.0 gives the best privacy-utility balance.** At ε=0.1 every model collapsed, and the Decision Tree scored an F1 of 0.
+3. **K-anonymity is limited by dataset size.** At k=5, 90% of the training data was suppressed, and at k=10 all of it was, so no model could be trained.
+4. **The Decision Tree is the most sensitive model** under both techniques.
+5. **Random Forest at k=2 (85.25%) beat its own baseline (80.33%).** This may be because suppression removed noisy records, but with only 61 test records it could also be chance.
+
+### Limitations
+
+- Only the Logistic Regression under DP uses diffprivlib's formal DP model.
+  Decision Tree and Random Forest use Laplace noise added to the training
+  features, which is not a formal ε-DP guarantee.
+- Single small dataset (301 records), so the results may not generalise.
+- Each configuration was run once, with a 61-record test set, so small
+  differences between models may not be meaningful.
+
+  
 ================================================================
 OUTPUT FILES (saved in the same folder)
 ---------------------------------------
